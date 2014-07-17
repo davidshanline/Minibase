@@ -1,0 +1,7 @@
+#ignore compiled bin files
+bin/
+#ignore eclipse settings directory
+.settings/
+#specific files to ignore
+.classpath
+.project
