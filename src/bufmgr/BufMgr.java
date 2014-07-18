@@ -135,6 +135,15 @@ public class BufMgr implements GlobalConst {
 	throw new UnsupportedOperationException("Not implemented");
     
   }
+  
+  /**
+   * Writes all pages in the buffer pool to disk, if dirty.
+   * Added by: David Shanline
+   * Added on: 18 JULY 2014
+   */
+  public void flushAllPages() {
+    throw new UnsupportedOperationException("Not implemented");
+  }
 
    /**
    * Gets the total number of buffer frames.
@@ -147,6 +156,15 @@ public class BufMgr implements GlobalConst {
    * Gets the total number of unpinned buffer frames.
    */
   public int getNumUnpinned() {
+    throw new UnsupportedOperationException("Not implemented");
+  }
+  
+  /**
+   * Gets the total number of buffer frames.
+   * Added by: David Shanline
+   * Added on: 18 JULY 2014
+   */
+  public int getNumBuffers() {
     throw new UnsupportedOperationException("Not implemented");
   }
 
