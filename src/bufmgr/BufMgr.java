@@ -6,6 +6,8 @@ import global.Page;
 import global.PageId;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * <h3>Minibase Buffer Manager</h3>
@@ -223,10 +225,21 @@ public class BufMgr implements GlobalConst {
    * Write all valid and dirty frames to disk.
    * Note flushing involves only writing, not unpinning or freeing
    * or the like.
+   * Note: this should remove from buffer pool and everything
    * 
    */
   public void flushAllPages() {
-
+	  //ADD BEGIN DFG
+	  //Iterator<E> it = hm.entrySet().iterator();
+	  //while( it.hasNext() )
+	  {
+		  //if ((frametab[].valid) && (frametab[FrameNum].dirty))
+		  //{
+          //   flushPage(frametab[FrameNum].pageno);
+          //}
+	  }
+	  //ADD END DFG	  
+	  
     //throw new UnsupportedOperationException("Not implemented");
 
   } // public void flushAllFrames()
@@ -238,8 +251,24 @@ public class BufMgr implements GlobalConst {
    * @throws IllegalArgumentException if the page is not in the buffer pool
    */
   public void flushPage(PageId pageno) {
+	  //ADD BEGIN DFG
+	  Integer FrameNum = hm.get(pageno.pid);
 	  
-    //throw new UnsupportedOperationException("Not implemented");
+	  if (FrameNum == null)
+	  {
+		  System.out.println("Not in Buffer Pool"); 
+	  }
+	  else
+	  {
+	    if ((frametab[FrameNum].valid) && (frametab[FrameNum].dirty))
+	    {
+	      System.out.println("Frame dirty, writing to disk");
+	      Minibase.DiskManager.write_page(pageno, buffer_pool[FrameNum]);
+	    }
+	  }
+	  //ADD END DFG
+
+	  //throw new UnsupportedOperationException("Not implemented");
     
   }
 
