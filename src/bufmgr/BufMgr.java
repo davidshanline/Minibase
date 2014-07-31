@@ -27,7 +27,8 @@ public class BufMgr implements GlobalConst {
 
   Page[] buffer_pool;
   FrameDesc[] frametab;
-  HashMap<Integer, Integer> hm; 
+  HashMap<Integer, Integer> Page2Frame;
+  HashMap<Integer, Integer> Frame2Page;
   Clock replPolicy;
     
   /**
@@ -46,7 +47,8 @@ public class BufMgr implements GlobalConst {
     }
 
     replPolicy = new Clock(this); 
-    hm = new HashMap<>();
+    Page2Frame = new HashMap<>();
+    Frame2Page = new HashMap<>();
   } // public BufMgr(int numframes)
 
   /**
@@ -80,8 +82,7 @@ public class BufMgr implements GlobalConst {
   public void pinPage(PageId pageno, Page mempage, int contents) { 
   
     //System.out.println("\nPinning PageId: " + pageno);
-  
-    Integer FrameNum = hm.get(pageno.pid);
+    Integer FrameNum = Page2Frame.get(pageno.pid);
     if (FrameNum == null)
     {
       //System.out.println("Not in Buffer Pool");
@@ -107,7 +108,7 @@ public class BufMgr implements GlobalConst {
             frametab[framenum].pin_count++;  
             frametab[framenum].valid = true; 
             frametab[framenum].pageno = new PageId(pageno.pid); 
-            updateHashMap(hm, pageno.pid, framenum);
+            addToHashMap(pageno.pid, framenum);
             break;        
           }
           case PIN_MEMCPY:
@@ -118,7 +119,7 @@ public class BufMgr implements GlobalConst {
             frametab[framenum].pin_count++;  
             frametab[framenum].valid = true;  
             frametab[framenum].pageno = new PageId(pageno.pid); 
-            updateHashMap(hm, pageno.pid, framenum);
+            addToHashMap(pageno.pid, framenum);
             break;        
           }
           case PIN_NOOP:
@@ -145,17 +146,17 @@ public class BufMgr implements GlobalConst {
     }
   } // public void pinPage(PageId pageno, Page page, int contents)
   
-  private void updateHashMap(HashMap<Integer, Integer> hm, int pid, int framenum) {
+  private void addToHashMap(Integer Page, Integer Frame)
+  {
+    Integer oldPage = Frame2Page.get(Frame);
+    if (oldPage != null)
+    {
+      Page2Frame.remove(oldPage);
+      Frame2Page.remove(Frame);
+    }
     
-    for (Map.Entry<Integer, Integer> entry : hm.entrySet()) {
-      if (entry.getValue() == framenum)
-      {
-        hm.remove(entry.getKey());
-        break;
-      }
-    }      
-
-    hm.put(pid, framenum);
+    Page2Frame.put(Page, Frame);
+    Frame2Page.put(Frame, Page);
   }
   
   /**
@@ -170,7 +171,7 @@ public class BufMgr implements GlobalConst {
       
     //System.out.println("\nUnpinning PageId: " + pageno);
     //System.out.println("Dirty is: " + dirty);
-    Integer FrameNum = hm.get(pageno.pid);
+    Integer FrameNum = Page2Frame.get(pageno.pid);
     if ((FrameNum == null) || frametab[FrameNum].pin_count == 0)
     {
       throw new IllegalArgumentException();      
@@ -206,7 +207,7 @@ public class BufMgr implements GlobalConst {
     else
     {
       PageId pageno = Minibase.DiskManager.allocate_page(run_size);
-      Integer FrameNum = hm.get(pageno.pid);
+      Integer FrameNum = Page2Frame.get(pageno.pid);
       if ((FrameNum != null) && (frametab[FrameNum].pin_count > 0))
       {
         throw new IllegalArgumentException(); 
@@ -227,7 +228,7 @@ public class BufMgr implements GlobalConst {
    */
   public void freePage(PageId pageno) {
 
-    Integer FrameNum = hm.get(pageno.pid);
+    Integer FrameNum = Page2Frame.get(pageno.pid);
     if ((FrameNum != null) && (frametab[FrameNum].pin_count > 0))
     {
       throw new IllegalArgumentException();
@@ -264,7 +265,7 @@ public class BufMgr implements GlobalConst {
   public void flushPage(PageId pageno) {
     
     //System.out.println("\nFlushing PageId: " + pageno);
-    Integer FrameNum = hm.get(pageno.pid);
+    Integer FrameNum = Page2Frame.get(pageno.pid);
     if (FrameNum != null)
     {
       if (frametab[FrameNum].dirty)
