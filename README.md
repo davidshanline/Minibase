@@ -1,3 +1,5 @@
+seanfast test
+
 How to run Msql 
  
 java -jar ./Msql.jar 
