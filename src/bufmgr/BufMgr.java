@@ -6,7 +6,6 @@ import global.Page;
 import global.PageId;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -80,20 +79,20 @@ public class BufMgr implements GlobalConst {
    */
   public void pinPage(PageId pageno, Page mempage, int contents) { 
   
-    System.out.println("\nPinning PageId: " + pageno);
+    //System.out.println("\nPinning PageId: " + pageno);
   
     Integer FrameNum = hm.get(pageno.pid);
     if (FrameNum == null)
     {
-      System.out.println("Not in Buffer Pool");
+      //System.out.println("Not in Buffer Pool");
       int framenum = replPolicy.pickVictim();
       if (framenum != -1)
       {
-        System.out.println("Putting in Frame: " + framenum);
+        //System.out.println("Putting in Frame: " + framenum);
         if ((frametab[framenum].valid) && (frametab[framenum].dirty))
         {
-          System.out.println("Frame dirty, writing to disk");
-          Minibase.DiskManager.write_page(pageno, buffer_pool[framenum]);
+          //System.out.println("Frame dirty, writing to disk");
+          Minibase.DiskManager.write_page(frametab[framenum].pageno, buffer_pool[framenum]);
         }
 
         switch (contents)
@@ -243,28 +242,9 @@ public class BufMgr implements GlobalConst {
    * Write all valid and dirty frames to disk.
    * Note flushing involves only writing, not unpinning or freeing
    * or the like.
-   * Note: this should remove from buffer pool and everything
    * 
    */
   public void flushAllPages() {
-	  //ADD BEGIN DFG
-	  //Iterator<E> it = hm.entrySet().iterator();
-	  //while( it.hasNext() )
-	  {
-		  //if ((frametab[].valid) && (frametab[FrameNum].dirty))
-		  //{
-          //   flushPage(frametab[FrameNum].pageno);
-          //}
-	  }
-	  //ADD END DFG	  
-	  
-    for (int i=0; i<frametab.length; i++)
-    {
-      if ((frametab[i].valid) && (frametab[i].dirty))
-      {
-        flushPage(frametab[i].pageno);    
-      }
-    }
 
     for (int i=0; i<frametab.length; i++)
     {
@@ -282,6 +262,8 @@ public class BufMgr implements GlobalConst {
    * @throws IllegalArgumentException if the page is not in the buffer pool
    */
   public void flushPage(PageId pageno) {
+    
+    //System.out.println("\nFlushing PageId: " + pageno);
     Integer FrameNum = hm.get(pageno.pid);
     if (FrameNum != null)
     {
