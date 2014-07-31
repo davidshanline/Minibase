@@ -282,26 +282,6 @@ public class BufMgr implements GlobalConst {
    * @throws IllegalArgumentException if the page is not in the buffer pool
    */
   public void flushPage(PageId pageno) {
-	  //ADD BEGIN DFG
-	  Integer FrameNum = hm.get(pageno.pid);
-	  
-	  if (FrameNum == null)
-	  {
-		  System.out.println("Not in Buffer Pool"); 
-	  }
-	  else
-	  {
-	    if ((frametab[FrameNum].valid) && (frametab[FrameNum].dirty))
-	    {
-	      System.out.println("Frame dirty, writing to disk");
-	      Minibase.DiskManager.write_page(pageno, buffer_pool[FrameNum]);
-	    }
-	  }
-	  //ADD END DFG
-
-	  //throw new UnsupportedOperationException("Not implemented");
-    
-    //System.out.println("\nFlushing PageId: " + pageno);
     Integer FrameNum = hm.get(pageno.pid);
     if (FrameNum != null)
     {
